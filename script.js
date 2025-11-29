@@ -2,13 +2,12 @@ const audioFolder = 'audio/';
 
 // Generate a large collection of sample filenames (chapters 1-4, tracks 1-44).
 // Replace or extend this list if you add more files to the audio/ directory.
-const audioFiles = Array.from({ length: 4 }, (_, chapterIndex) => {
-  const chapter = chapterIndex + 1;
-  return Array.from({ length: 44 }, (_, trackIndex) => {
-    const track = String(trackIndex + 1).padStart(2, '0');
-    return `${chapter}-${track}.mp3`;
-  });
-}).flat();
+const audioFiles = [
+  "1-01.mp3","1-02.mp3","1-03.mp3","1-04.mp3","1-05.mp3","1-06.mp3","1-07.mp3","1-08.mp3","1-09.mp3","1-10.mp3",
+  "2-01.mp3","2-02.mp3","2-03.mp3","2-04.mp3","2-05.mp3","2-06.mp3","2-07.mp3","2-08.mp3","2-09.mp3","2-10.mp3","2-11.mp3","2-12.mp3","2-13.mp3",
+  "3-01.mp3","3-02.mp3","3-03.mp3","3-04.mp3","3-05.mp3","3-06.mp3","3-07.mp3","3-08.mp3","3-09.mp3","3-10.mp3","3-11.mp3","3-12.mp3","3-13.mp3","3-14.mp3","3-15.mp3","3-16.mp3","3-17.mp3","3-18.mp3","3-19.mp3","3-20.mp3","3-21.mp3","3-22.mp3","3-23.mp3","3-24.mp3","3-25.mp3",
+  "4-01.mp3","4-02.mp3","4-03.mp3","4-04.mp3","4-05.mp3","4-06.mp3","4-07.mp3","4-08.mp3","4-09.mp3","4-10.mp3","4-11.mp3","4-12.mp3","4-13.mp3","4-14.mp3","4-15.mp3","4-16.mp3","4-17.mp3","4-18.mp3","4-19.mp3","4-20.mp3","4-21.mp3","4-22.mp3","4-23.mp3","4-24.mp3","4-25.mp3","4-26.mp3","4-27.mp3","4-28.mp3","4-29.mp3","4-30.mp3","4-31.mp3","4-32.mp3","4-33.mp3","4-34.mp3","4-35.mp3","4-36.mp3","4-37.mp3","4-38.mp3","4-39.mp3","4-40.mp3","4-41.mp3","4-42.mp3","4-43.mp3","4-44.mp3"
+];
 
 document.addEventListener('DOMContentLoaded', () => {
   const accordion = document.getElementById('accordion');
