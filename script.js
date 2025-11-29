@@ -1,4 +1,5 @@
 const audioFolder = 'audio/';
+const audioPlayers = [];
 
 // Generate a large collection of sample filenames (chapters 1-4, tracks 1-44).
 // Replace or extend this list if you add more files to the audio/ directory.
@@ -109,13 +110,11 @@ function createSection(chapterNumber, tracks) {
 
     name.appendChild(meta);
 
-    const player = document.createElement('audio');
-    player.controls = true;
-    player.preload = 'none';
-    player.src = `${audioFolder}${track.file}`;
+    const { container, audio } = createCustomPlayer(track.file);
+    audioPlayers.push(audio);
 
     itemEl.appendChild(name);
-    itemEl.appendChild(player);
+    itemEl.appendChild(container);
     list.appendChild(itemEl);
   });
 
@@ -127,6 +126,113 @@ function createSection(chapterNumber, tracks) {
   item.appendChild(panel);
 
   return { item, panel, trigger };
+}
+
+function createCustomPlayer(file) {
+  const container = document.createElement('div');
+  container.className = 'player-shell';
+
+  const audio = document.createElement('audio');
+  audio.className = 'audio-player';
+  audio.preload = 'metadata';
+  audio.src = `${audioFolder}${file}`;
+  audio.controls = false;
+  audio.setAttribute('tabindex', '-1');
+
+  const controls = document.createElement('div');
+  controls.className = 'player-controls';
+
+  const playButton = document.createElement('button');
+  playButton.type = 'button';
+  playButton.className = 'play-toggle';
+  playButton.setAttribute('aria-label', 'Play');
+  playButton.textContent = '►';
+
+  const time = document.createElement('span');
+  time.className = 'timecode';
+  time.textContent = '0:00 / 0:00';
+
+  const progress = document.createElement('input');
+  progress.type = 'range';
+  progress.min = '0';
+  progress.step = '0.1';
+  progress.value = '0';
+  progress.className = 'player-progress';
+  progress.setAttribute('aria-label', 'Seek');
+
+  controls.appendChild(playButton);
+  controls.appendChild(progress);
+  controls.appendChild(time);
+
+  container.appendChild(controls);
+  container.appendChild(audio);
+
+  playButton.addEventListener('click', () => togglePlayback(audio, playButton));
+
+  audio.addEventListener('loadedmetadata', () => {
+    progress.max = audio.duration.toString();
+    updateTimecode(time, audio.currentTime, audio.duration);
+  });
+
+  audio.addEventListener('timeupdate', () => {
+    progress.value = audio.currentTime;
+    updateTimecode(time, audio.currentTime, audio.duration);
+  });
+
+  audio.addEventListener('play', () => {
+    playButton.textContent = '❚❚';
+    playButton.setAttribute('aria-label', 'Pause');
+    pauseOtherAudios(audio);
+  });
+
+  audio.addEventListener('pause', () => {
+    playButton.textContent = '►';
+    playButton.setAttribute('aria-label', 'Play');
+  });
+
+  audio.addEventListener('ended', () => {
+    audio.currentTime = 0;
+    progress.value = '0';
+    updateTimecode(time, 0, audio.duration);
+    playButton.textContent = '►';
+    playButton.setAttribute('aria-label', 'Play');
+  });
+
+  progress.addEventListener('input', () => {
+    audio.currentTime = Number(progress.value);
+  });
+
+  return { container, audio };
+}
+
+function togglePlayback(audio, button) {
+  if (audio.paused) {
+    audio.play();
+  } else {
+    audio.pause();
+    button.textContent = '►';
+    button.setAttribute('aria-label', 'Play');
+  }
+}
+
+function pauseOtherAudios(current) {
+  audioPlayers.forEach((player) => {
+    if (player !== current && !player.paused) {
+      player.pause();
+    }
+  });
+}
+
+function updateTimecode(el, current, duration) {
+  const safeDuration = Number.isFinite(duration) ? duration : 0;
+  el.textContent = `${formatTime(current)} / ${formatTime(safeDuration)}`;
+}
+
+function formatTime(time) {
+  const totalSeconds = Math.floor(time || 0);
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = String(totalSeconds % 60).padStart(2, '0');
+  return `${minutes}:${seconds}`;
 }
 
 function toggleSection(item, panel, trigger, forceOpen = undefined) {
